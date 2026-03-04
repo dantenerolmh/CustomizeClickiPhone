@@ -1,4 +1,5 @@
 import time
+import os  # 新增：用于调用 Mac 系统底层的声音命令
 from appium import webdriver
 from appium.options.ios import XCUITestOptions
 from appium.webdriver.common.appiumby import AppiumBy
@@ -12,118 +13,94 @@ options.platform_version = '26.3'
 options.device_name = 'iPhone 17 Pro'
 options.udid = '00008150-0016215C149A401C'
 options.automation_name = 'XCUITest'
-
-# ==========================================
-# 👇 第二步的代码就是加在这里！👇
 options.set_capability('usePrebuiltWDA', True)
-# ==========================================
 
 driver = webdriver.Remote('http://127.0.0.1:4723', options=options)
-print("连接成功！开始分析当前页面入口...")
+print("连接成功！全面升级为【带声音警报的4级状态机模式】...")
 
 # ==========================================
-# 【启动逻辑升级】: 加入直接检测动态膨胀弹窗
-# ==========================================
-try:
-    # 优先级 0：可能一打开屏幕就已经有“看广告膨胀”的弹窗挡着了
-    print("🔍 优先级 0: 检测是否已有『看广告膨胀』弹窗...")
-    # 使用 contains 语法，无视 458 或 508 等动态数字
-    inflate_btn_start = entry_wait.until(
-        EC.element_to_be_clickable((AppiumBy.XPATH, "//*[contains(@label, '看广告膨胀') or contains(@name, '看广告膨胀')]"))
-    )
-    print("✅ 找到现有『看广告膨胀』弹窗！点击直接进入广告流。")
-    inflate_btn_start.click()
-    time.sleep(2)
-
-except Exception:
-    try:
-        # 优先级 1：寻找“开宝箱得金币”
-        print("🔍 优先级 1: 检测是否存在『开宝箱得金币』按钮...")
-        treasure_btn = entry_wait.until(
-            EC.element_to_be_clickable((AppiumBy.XPATH, "//*[contains(@label, '开宝箱得金币') or contains(@name, '开宝箱得金币')]"))
-        )
-        print("✅ 找到『开宝箱得金币』！点击进入广告流。")
-        treasure_btn.click()
-        time.sleep(2)
-
-    except Exception:
-        print("⚠️ 未找到宝箱，尝试寻找备用入口『待领取』...")
-        try:
-            # 优先级 2：寻找列表里的“待领取”
-            pending_btn = entry_wait.until(
-                EC.element_to_be_clickable((AppiumBy.XPATH, "//*[contains(@label, '待领取') or contains(@name, '待领取')]"))
-            )
-            print("✅ 找到『待领取』按钮！点击打开弹窗...")
-            pending_btn.click()
-            time.sleep(2)
-
-            # 点击弹窗中的“看广告膨胀”动态按钮
-            print("🎁 正在弹窗中点击『看广告膨胀』...")
-            inflate_btn = entry_wait.until(
-                EC.element_to_be_clickable((AppiumBy.XPATH, "//*[contains(@label, '看广告膨胀') or contains(@name, '看广告膨胀')]"))
-            )
-            inflate_btn.click()
-            print("✅ 成功点击『看广告膨胀』！正式进入广告流。")
-            time.sleep(2)
-
-        except Exception:
-            print("❌ 警告：所有入口均未找到！脚本将强行尝试进入主循环接管...")
-            pass
-
-# ==========================================
-# 正式进入全自动死循环
+# 正式进入全自动智能死循环
 # ==========================================
 loop_count = 1
 while True:
-    print(f"\n--- 开始第 {loop_count} 轮循环 ---")
+    print(f"\n--- 🔄 开始第 {loop_count} 轮屏幕扫描 ---")
     try:
-        # 【步骤 1】: 等待倒计时结束，点击右上角的“领取成功”
-        print("📺 盯着右上角等待『领取成功』出现...")
-        wait_for_ad = WebDriverWait(driver, 65)
-        success_btn = wait_for_ad.until(
-            EC.element_to_be_clickable((AppiumBy.XPATH, "//*[contains(@label, '领取成功') or contains(@name, '领取成功')]"))
+        # 总雷达保持不变：只要有任何目标出现，就唤醒分析逻辑
+        any_target_xpath = (
+            "//*["
+            "contains(@label, '领取奖励') or contains(@name, '领取奖励') or contains(@value, '领取奖励') or "
+            "contains(@label, '开心收下') or contains(@name, '开心收下') or contains(@value, '开心收下') or "
+            "contains(@label, '开宝箱得金币') or contains(@name, '开宝箱得金币') or contains(@value, '开宝箱得金币') or "
+            "contains(@label, '待领取') or contains(@name, '待领取') or contains(@value, '待领取') or "
+            "contains(@label, '看广告膨胀') or contains(@name, '看广告膨胀') or contains(@value, '看广告膨胀') or "
+            "contains(@label, '领取成功') or contains(@name, '领取成功') or contains(@value, '领取成功')"
+            "]"
         )
-        success_btn.click()
-        print("✅ 点击『领取成功』！")
-        time.sleep(2)
 
-        # 【步骤 2 升级】: 兼容普通“领取奖励”和动态“看广告膨胀领XXX”
-        print("🎁 等待后续弹窗...")
-        wait_for_popup = WebDriverWait(driver, 10)
-        # 这里的 XPath 使用了 OR 逻辑，无论出哪种按钮都能抓到并点击
-        reward_btn = wait_for_popup.until(
-            EC.element_to_be_clickable((AppiumBy.XPATH, "//*[contains(@label, '领取奖励') or contains(@name, '领取奖励') or contains(@label, '看广告膨胀') or contains(@name, '看广告膨胀')]"))
+        radar_wait = WebDriverWait(driver, 65)
+        radar_wait.until(EC.presence_of_element_located((AppiumBy.XPATH, any_target_xpath)))
+
+        # --- 🎯 目标已出现，开始按 4 级优先级精准打击 ---
+
+        # 【优先级 1：绝对前景弹窗】
+        foreground_xpath = (
+            "//*["
+            "contains(@label, '开心收下') or contains(@name, '开心收下') or contains(@value, '开心收下') or "
+            "contains(@label, '领取奖励') or contains(@name, '领取奖励') or contains(@value, '领取奖励') or "
+            "contains(@label, '看广告膨胀') or contains(@name, '看广告膨胀') or contains(@value, '看广告膨胀')"
+            "]"
         )
-        reward_btn.click()
-        print("✅ 成功点击继续领奖/膨胀按钮！")
-        time.sleep(2)
+        foregrounds = driver.find_elements(AppiumBy.XPATH, foreground_xpath)
+        if foregrounds:
+            btn = foregrounds[0]
+            btn_text = btn.get_attribute("label") or btn.get_attribute("name") or btn.get_attribute("value") or "未知前景弹窗"
+            print(f"🎯 [优先级1] 发现绝对前景目标: 【{btn_text}】，执行点击！")
+            btn.click()
+            time.sleep(3)
+            loop_count += 1
+            continue
 
-        # 【步骤 3】: 智能检测“开心收下”阶段大奖弹窗
-        print("🕵️ 开始检测是否触发阶段大奖...")
-        try:
-            short_wait = WebDriverWait(driver, 4)
-            happy_btn = short_wait.until(
-                EC.element_to_be_clickable((AppiumBy.XPATH, "//*[contains(@label, '开心收下') or contains(@name, '开心收下')]"))
-            )
-            print("🎉 触发了阶段大奖！点击『开心收下』")
-            happy_btn.click()
-            time.sleep(2)
+        # 【优先级 2：背景广告关闭】
+        ad_close_xpath = "//*[contains(@label, '领取成功') or contains(@name, '领取成功') or contains(@value, '领取成功')]"
+        ad_closes = driver.find_elements(AppiumBy.XPATH, ad_close_xpath)
+        if ad_closes:
+            btn = ad_closes[0]
+            btn_text = btn.get_attribute("label") or btn.get_attribute("name") or btn.get_attribute("value") or "未知关闭按钮"
+            print(f"🎯 [优先级2] 发现广告关闭目标: 【{btn_text}】，执行点击！")
+            btn.click()
+            time.sleep(3)
+            loop_count += 1
+            continue
 
-            # 回到主界面后，寻找并点击“待领取”
-            print("🔍 寻找主界面的『待领取』按钮...")
-            pending_btn = short_wait.until(
-                EC.element_to_be_clickable((AppiumBy.XPATH, "//*[contains(@label, '待领取') or contains(@name, '待领取')]"))
-            )
-            pending_btn.click()
-            print("✅ 成功点击『待领取』，重新接上广告流！")
-            time.sleep(2)
+        # 【优先级 3：主界面“开宝箱得金币”】
+        treasure_xpath = "//*[contains(@label, '开宝箱得金币') or contains(@name, '开宝箱得金币') or contains(@value, '开宝箱得金币')]"
+        treasures = driver.find_elements(AppiumBy.XPATH, treasure_xpath)
+        if treasures:
+            print(f"🎯 [优先级3] 发现主界面目标: 【开宝箱得金币】，执行点击！")
+            treasures[0].click()
+            time.sleep(3)
+            loop_count += 1
+            continue
 
-        except Exception:
-            print("（常规循环，未触发阶段大奖，继续平稳运行）")
-            pass
-
-        loop_count += 1
+        # 【优先级 4：主界面“待领取”】
+        pending_xpath = "//*[contains(@label, '待领取') or contains(@name, '待领取') or contains(@value, '待领取')]"
+        pendings = driver.find_elements(AppiumBy.XPATH, pending_xpath)
+        if pendings:
+            print(f"🎯 [优先级4] 发现主界面目标: 【待领取】，执行点击！")
+            pendings[0].click()
+            time.sleep(3)
+            loop_count += 1
+            continue
 
     except Exception as e:
-        print(f"⚠️ 发生异常卡住了，等待 5 秒后重试...")
+        print("⚠️ 屏幕上 65 秒都没有出现任何熟悉的按钮，可能是广告卡死或遇到新弹窗。")
+
+        # 👇 新增的警报功能 👇
+        print("🔔 正在播放 Mac 警报音...")
+        # 连续播放三声清脆的 Glass 提示音，确保你能听到
+        for _ in range(3):
+            os.system("afplay /System/Library/Sounds/Glass.aiff")
+            time.sleep(0.5)
+
+        print("🔄 等待 5 秒后雷达重新扫描...")
         time.sleep(5)
