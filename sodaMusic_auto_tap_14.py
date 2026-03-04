@@ -5,18 +5,21 @@ from appium.webdriver.common.appiumby import AppiumBy
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-# 1. 设备配置信息
+# 1. 填入你的设备配置信息
 options = XCUITestOptions()
 options.platform_name = 'iOS'
 options.platform_version = '26.3'
-options.device_name = 'iPhone 17 Pro'
-options.udid = '00008150-0016215C149A401C'
+options.device_name = 'iPhone 14 Pro'
+options.udid = '00008120-00043DA20E40201E'
 options.automation_name = 'XCUITest'
+
+# ==========================================
+# 👇 第二步的代码就是加在这里！👇
+options.set_capability('usePrebuiltWDA', True)
+# ==========================================
 
 driver = webdriver.Remote('http://127.0.0.1:4723', options=options)
 print("连接成功！开始分析当前页面入口...")
-
-entry_wait = WebDriverWait(driver, 5)
 
 # ==========================================
 # 【启动逻辑升级】: 加入直接检测动态膨胀弹窗
