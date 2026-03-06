@@ -1,5 +1,5 @@
 import time
-import os  # 新增：用于调用 Mac 系统底层的声音命令
+import os
 from appium import webdriver
 from appium.options.ios import XCUITestOptions
 from appium.webdriver.common.appiumby import AppiumBy
@@ -25,9 +25,10 @@ loop_count = 1
 while True:
     print(f"\n--- 🔄 开始第 {loop_count} 轮屏幕扫描 ---")
     try:
-        # 总雷达保持不变：只要有任何目标出现，就唤醒分析逻辑
+        # 总雷达：新增了对 '评价并关闭' 的监控
         any_target_xpath = (
             "//*["
+            "contains(@label, '评价并关闭') or contains(@name, '评价并关闭') or contains(@value, '评价并关闭') or "
             "contains(@label, '领取奖励') or contains(@name, '领取奖励') or contains(@value, '领取奖励') or "
             "contains(@label, '开心收下') or contains(@name, '开心收下') or contains(@value, '开心收下') or "
             "contains(@label, '开宝箱得金币') or contains(@name, '开宝箱得金币') or contains(@value, '开宝箱得金币') or "
@@ -42,9 +43,10 @@ while True:
 
         # --- 🎯 目标已出现，开始按 4 级优先级精准打击 ---
 
-        # 【优先级 1：绝对前景弹窗】
+        # 【优先级 1：绝对前景弹窗】 -> 新增了 '评价并关闭'
         foreground_xpath = (
             "//*["
+            "contains(@label, '评价并关闭') or contains(@name, '评价并关闭') or contains(@value, '评价并关闭') or "
             "contains(@label, '开心收下') or contains(@name, '开心收下') or contains(@value, '开心收下') or "
             "contains(@label, '领取奖励') or contains(@name, '领取奖励') or contains(@value, '领取奖励') or "
             "contains(@label, '看广告膨胀') or contains(@name, '看广告膨胀') or contains(@value, '看广告膨胀')"
@@ -95,9 +97,7 @@ while True:
     except Exception as e:
         print("⚠️ 屏幕上 65 秒都没有出现任何熟悉的按钮，可能是广告卡死或遇到新弹窗。")
 
-        # 👇 新增的警报功能 👇
         print("🔔 正在播放 Mac 警报音...")
-        # 连续播放三声清脆的 Glass 提示音，确保你能听到
         for _ in range(3):
             os.system("afplay /System/Library/Sounds/Glass.aiff")
             time.sleep(0.5)
