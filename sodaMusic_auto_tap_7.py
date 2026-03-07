@@ -6,24 +6,30 @@ from appium.webdriver.common.appiumby import AppiumBy
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-# 1. 填入你的设备配置信息
+# ==========================================
+# 1. 填入你的设备配置信息 (专为 iPhone 7 Plus 隔离配置)
+# ==========================================
 options = XCUITestOptions()
 options.platform_name = 'iOS'
-options.platform_version = '26.3'
-options.device_name = 'iPhone 17 Pro'
-options.udid = '00008150-0016215C149A401C'
+options.platform_version = '15.8.5'  # 已修改为 iPhone 7 的系统版本
+options.device_name = 'iPhone 7 Plus' # 已修改设备名
+options.udid = '6f66d4e90b71d0e823ccc6a8281fb6e0f27885c3' # 已替换为你的 UDID
 options.automation_name = 'XCUITest'
 options.set_capability('usePrebuiltWDA', True)
 
-driver = webdriver.Remote('http://127.0.0.1:4723', options=options)
-print("连接成功！全面升级为【带声音警报的6级状态机模式 (贪婪双选版)】...")
+# 【关键新增】隔离 WDA 通讯端口，防止与 iPhone 17 冲突 (默认是 8100)
+options.set_capability('wdaLocalPort', 8101)
+
+# 【关键修改】指向 4724 端口的第二个 Appium 服务
+driver = webdriver.Remote('http://127.0.0.1:4724', options=options)
+print("连接成功！iPhone 7 Plus 专属路线已接通，全面升级为【带声音警报的6级状态机模式 (贪婪双选版)】...")
 
 # ==========================================
-# 正式进入全自动智能死循环
+# 2. 正式进入全自动智能死循环 (逻辑与原版完全一致)
 # ==========================================
 loop_count = 1
 while True:
-    print(f"\n--- 🔄 开始第 {loop_count} 轮屏幕扫描 ---")
+    print(f"\n--- 🔄 开始第 {loop_count} 轮屏幕扫描 (iPhone 7) ---")
     try:
         # 总雷达：新增对 '看广告视频再赚' 和 '我知道了' 的监控
         any_target_xpath = (
